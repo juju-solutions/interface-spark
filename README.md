@@ -11,13 +11,13 @@ signal to all its related clients that has become available.
 
 The interface layer sets the following state as soon as a client is connected:
 
-  * `{relation_name}.related` The relation between the client and Spark is established.
+  * `{relation_name}.joined` The relation between the client and Spark is established.
 
 The Spark provider can signal its availability through the following methods:
 
-  * `set_installed()` Spark is available.
+  * `set_spark_started()` Spark is available.
 
-  * `clear_installed()` Spark is down.
+  * `clear_spark_started()` Spark is down.
 
 An example of a charm using this interface would be:
 
@@ -42,14 +42,14 @@ will use to be informed of the availability of Spark.
 The interface layer will set the following state for the client to react to, as
 appropriate:
 
-  * `{relation_name}.related` The client is related to Spark and is waiting for Spark to become available.
+  * `{relation_name}.joined` The client is related to Spark and is waiting for Spark to become available.
 
-  * `{relation_name}.available` Spark is ready to be used.
+  * `{relation_name}.ready` Spark is ready to be used.
 
 An example of a charm using this interface would be:
 
 ```python
-@when('zeppelin.installed', 'spark.available')
+@when('zeppelin.installed', 'spark.ready')
 @when_not('zeppelin.started')
 def configure_zeppelin(spark):
     hookenv.status_set('maintenance', 'Setting up Zeppelin')
@@ -60,7 +60,7 @@ def configure_zeppelin(spark):
 
 
 @when('zeppelin.started')
-@when_not('spark.available')
+@when_not('spark.ready')
 def stop_zeppelin():
     zepp = Zeppelin(get_dist_config())
     zepp.stop()
