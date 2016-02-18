@@ -38,7 +38,7 @@ class SparkRequires(RelationBase):
         conv.remove_state('{relation_name}.joined')
         conv.remove_state('{relation_name}.ready')
 
-    def get_privateip(self):
+    def get_private_ip(self):
         conv = self.conversation()
         return conv.get_remote('private-address')
 
