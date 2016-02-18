@@ -37,9 +37,8 @@ class SparkProvides(RelationBase):
     def clear_spark_started(self):
         self.set_remote('spark_started', False)
 
-    def send_rest_port(self, rest_port): 
+    def send_rest_port(self, rest_port):
         conv = self.conversation()
         conv.set_remote(data={
             'rest_port': rest_port,
         })
-
