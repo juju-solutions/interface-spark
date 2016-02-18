@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 from charms.reactive import RelationBase
 from charms.reactive import hook
 from charms.reactive import scopes
@@ -33,7 +32,7 @@ class SparkRequires(RelationBase):
         if self.installed():
             conv.set_state('{relation_name}.available')
 
-    @hook('{provides:spark}-relation-departed')
+    @hook('{requires:spark}-relation-departed')
     def departed(self):
         conv = self.conversation()
         conv.remove_state('{relation_name}.related')
