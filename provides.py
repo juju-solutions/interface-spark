@@ -11,7 +11,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 from charms.reactive import RelationBase
 from charms.reactive import hook
 from charms.reactive import scopes
