@@ -22,17 +22,23 @@ class SparkProvides(RelationBase):
     @hook('{provides:spark}-relation-joined')
     def joined(self):
         conv = self.conversation()
-        conv.set_state('{relation_name}.related')
+        conv.set_state('{relation_name}.joined')
 
     @hook('{provides:spark}-relation-departed')
     def departed(self):
         conv = self.conversation()
-        conv.remove_state('{relation_name}.related')
+        conv.remove_state('{relation_name}.joined')
 
-    def set_installed(self):
+    def set_spark_started(self):
         self.set_remote(data={
-            'installed': True,
+            'spark_started': True,
         })
 
-    def clear_installed(self):
-        self.set_remote('installed', False)
+    def clear_spark_started(self):
+        self.set_remote('spark_started', False)
+
+    def send_rest_port(self, rest_port):
+        conv = self.conversation()
+        conv.set_remote(data={
+            'rest_port': rest_port,
+        })
