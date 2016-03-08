@@ -29,7 +29,8 @@ class SparkRequires(RelationBase):
     @hook('{requires:spark}-relation-changed')
     def changed(self):
         conv = self.conversation()
-        conv.toggle_state('{relation_name}.ready', active=self.is_spark_started())
+        conv.toggle_state('{relation_name}.ready',
+                          active=self.is_spark_started())
 
     @hook('{requires:spark}-relation-departed')
     def departed(self):
