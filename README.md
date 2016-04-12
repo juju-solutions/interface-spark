@@ -64,7 +64,7 @@ def configure_zeppelin(spark):
 def stop_zeppelin():
     zepp = Zeppelin(get_dist_config())
     zepp.stop()
-    remove_state('zepplin.started')
+    remove_state('zeppelin.started')
 ```
 
 
