@@ -32,12 +32,6 @@ class SparkRequires(RelationBase):
         conv.toggle_state('{relation_name}.ready',
                           active=self.is_spark_started())
 
-    @hook('{requires:spark}-relation-departed')
-    def departed(self):
-        conv = self.conversation()
-        conv.remove_state('{relation_name}.joined')
-        conv.remove_state('{relation_name}.ready')
-
     def get_private_ip(self):
         conv = self.conversation()
         return conv.get_remote('private-address')
@@ -45,3 +39,12 @@ class SparkRequires(RelationBase):
     def get_rest_port(self):
         conv = self.conversation()
         return conv.get_remote('rest_port')
+
+    def get_master_info(self):
+        conv = self.conversation()
+        data={
+            'connection_string': conv.get_remote('connection_string'),
+            'master': conv.get_remote('master'),
+        }
+        return data
+

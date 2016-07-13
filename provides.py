@@ -24,11 +24,6 @@ class SparkProvides(RelationBase):
         conv = self.conversation()
         conv.set_state('{relation_name}.joined')
 
-    @hook('{provides:spark}-relation-departed')
-    def departed(self):
-        conv = self.conversation()
-        conv.remove_state('{relation_name}.joined')
-
     def set_spark_started(self):
         self.set_remote(data={
             'spark_started': True,
@@ -41,4 +36,11 @@ class SparkProvides(RelationBase):
         conv = self.conversation()
         conv.set_remote(data={
             'rest_port': rest_port,
+        })
+
+    def send_master_info(self, connection_string, master):
+        conv = self.conversation()
+        conv.set_remote(data={
+            'connection_string': connection_string,
+            'master': master,
         })
