@@ -32,11 +32,12 @@ class SparkRequires(RelationBase):
         conv.toggle_state('{relation_name}.ready',
                           active=self.is_spark_started())
 
-    @hook('{provides:spark}-relation-departed')
+    @hook('{requires:spark}-relation-departed')
     def departed(self):
         conv = self.conversation()
         if len(conv.units) <= 1:
             conv.remove_state('{relation_name}.joined')
+            conv.remove_state('{relation_name}.ready')
 
     def get_private_ip(self):
         conv = self.conversation()
