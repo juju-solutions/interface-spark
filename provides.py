@@ -24,6 +24,13 @@ class SparkProvides(RelationBase):
         conv = self.conversation()
         conv.set_state('{relation_name}.joined')
 
+    @hook('{requires:spark}-relation-departed')
+    def departed(self):
+        conv = self.conversation()
+        if len(conv.units) <= 1: # last remaining unit departing
+            conv.remove_state('{relation_name}.joined')
+            conv.remove_state('{relation_name}.ready')
+
     def set_spark_started(self):
         self.set_remote(data={
             'spark_started': True,
