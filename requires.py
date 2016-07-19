@@ -54,4 +54,3 @@ class SparkRequires(RelationBase):
             'master': conv.get_remote('master'),
         }
         return data
-
