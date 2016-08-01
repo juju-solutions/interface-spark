@@ -49,7 +49,7 @@ class SparkRequires(RelationBase):
 
     def get_master_info(self):
         conv = self.conversation()
-        data={
+        data = {
             'connection_string': conv.get_remote('connection_string'),
             'master': conv.get_remote('master'),
         }
