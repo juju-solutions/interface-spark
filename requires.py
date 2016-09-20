@@ -31,6 +31,11 @@ class SparkRequires(RelationBase):
         conv = self.conversation()
         conv.toggle_state('{relation_name}.ready',
                           active=self.is_spark_started())
+        conv.toggle_state('{relation_name}.master',
+                          active=all([
+                              self.get_master_url(),
+                              self.get_master_ip(),
+                          ]))
 
     @hook('{requires:spark}-relation-departed')
     def departed(self):
@@ -54,3 +59,11 @@ class SparkRequires(RelationBase):
             'master': conv.get_remote('master'),
         }
         return data
+
+    def get_master_url(self):
+        conv = self.conversation()
+        return conv.get_remote('connection_string')
+
+    def get_master_ip(self):
+        conv = self.conversation()
+        return conv.get_remote('master')
