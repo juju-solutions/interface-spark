@@ -1,74 +1,78 @@
 # Overview
 
-This interface layer handles the communication between a Spark client and Spark.
+This interface layer handles the communication between Apache Spark and its
+clients. The provider of this interface provides Spark services.
+The consumer requires the existence of a provider to function.
+
 
 # Usage
 
 ## Provides
 
-The Spark deployment is provided by the Spark charm. this charm has to
-signal to all its related clients that has become available.
+Charms providing Apache Spark services *provide* this interface. This
+interface layer will set the following states, as appropriate:
 
-The interface layer sets the following state as soon as a client is connected:
+  * `{relation_name}.joined` The provider has been related to a client. At this
+  point, the provider should broadcast details that clients might need:
 
-  * `{relation_name}.joined` The relation between the client and Spark is established.
+    * If Spark is ready to process client jobs:
+        * `set_spark_started()`
+        * `send_master_info(master_url, master_ip)`
+        * `send_rest_port(port)`
+    * If Spark is not ready (e.g. Spark is in YARN mode, but YARN is not ready):
+        * `clear_spark_started()`
 
-The Spark provider can signal its availability through the following methods:
-
-  * `set_spark_started()` Spark is available.
-
-  * `clear_spark_started()` Spark is down.
-
-An example of a charm using this interface would be:
+Spark provider example:
 
 ```python
-@when('spark.started', 'client.related')
-def client_present(client):
-    client.set_installed()
+@when('spark.started', 'client.joined')
+def serve_client(client):
+    client.set_spark_started()
+    client.send_master_info(get_master_url(), get_master_ip())
+    client.send_rest_port(6066)
 
-
-@when('client.related')
+@when('client.joined')
 @when_not('spark.started')
-def client_should_stop(client):
-    client.clear_installed()
+def stop_serving_client(client):
+    client.clear_spark_started()
 ```
-
 
 ## Requires
 
-This is the side that a Spark client charm (e.g., Zeppelin)
-will use to be informed of the availability of Spark.
+Clients *require* this interface to connect to Apache Spark. This interface
+layer will set the following states, as appropriate:
 
-The interface layer will set the following state for the client to react to, as
-appropriate:
+  * `{relation_name}.joined` The client charm has been related to a Spark
+  provider. At this point, the charm waits for Spark configuration details.
 
-  * `{relation_name}.joined` The client is related to Spark and is waiting for Spark to become available.
+  * `{relation_name}.master`  The provider has supplied both a Spark Master
+  URL as well as a Spark Master IP address.
 
-  * `{relation_name}.ready` Spark is ready to be used.
+  * `{relation_name}.ready`  The provider has called `set_spark_started`,
+  signifying Spark is ready for clients. The client charm should get Spark
+  configuration details using:
+    * `get_master_info()` returns a dict with the Spark Master URL and IP:
+          {connection_string: 'spark://xxx.xxx.xxx.xxx:7077',
+           master: 'xxx.xxx.xxx.xxx'}
+    * `get_master_url()` returns the Spark Master URL used by the provider
+    * `get_master_ip()` returns the IP address of the provider
 
-An example of a charm using this interface would be:
+Spark client example:
 
 ```python
-@when('zeppelin.installed', 'spark.ready')
-@when_not('zeppelin.started')
-def configure_zeppelin(spark):
-    hookenv.status_set('maintenance', 'Setting up Zeppelin')
-    zepp = Zeppelin(get_dist_config())
-    zepp.start()
-    set_state('zeppelin.started')
-    hookenv.status_set('active', 'Ready')
-
-
-@when('zeppelin.started')
+@when('spark.joined')
 @when_not('spark.ready')
-def stop_zeppelin():
-    zepp = Zeppelin(get_dist_config())
-    zepp.stop()
-    remove_state('zeppelin.started')
+def wait_for_spark(spark):
+    hookenv.status_set('waiting', 'Waiting for Spark to become available')
+
+@when('spark.ready')
+@when_not('myservice.configured')
+def configure(spark):
+    configure_my_service(spark_master=spark.get_master_url())
+    set_state('myservice.configured')
 ```
 
 
 # Contact Information
 
 - <bigdata@lists.ubuntu.com>
-
